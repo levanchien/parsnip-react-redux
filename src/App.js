@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { createTask, editTask } from "./actions";
+import { createTask, editTask, fetchTasks } from "./actions";
+import FlashMessage from "./components/FlashMessage";
 import TasksPage from "./components/TasksPage";
 
 /* 
@@ -16,15 +17,22 @@ class App extends Component {
   onStatusChange = (id, status) => {
     this.props.dispatch(editTask(id, { status }));
   };
+  componentDidMount() {
+    this.props.dispatch(fetchTasks());
+  }
   render() {
     return (
-      <div className="main-content">
-        {/* tasks will be available via props after connected to the store */}
-        <TasksPage
-          tasks={this.props.tasks}
-          onCreateTask={this.onCreateTask}
-          onStatusChange={this.onStatusChange}
-        />
+      <div className="container">
+        {this.props.error && <FlashMessage message={this.props.error} />}
+        <div className="main-content">
+          {/* tasks will be available via props after connected to the store */}
+          <TasksPage
+            tasks={this.props.tasks}
+            onCreateTask={this.onCreateTask}
+            onStatusChange={this.onStatusChange}
+            isLoading={this.props.isLoading}
+          />
+        </div>
       </div>
     );
   }
@@ -39,9 +47,8 @@ function mapStateToProps(state) {
   The return value of mapStateToProps is passed into the App component as props,
    which is why render can reference this.props.tasks. 
   */
-  return {
-    tasks: state.tasks,
-  };
+  const { tasks, isLoading, error } = state.tasks;
+  return { tasks, isLoading, error };
 }
 
 export default connect(mapStateToProps)(App);

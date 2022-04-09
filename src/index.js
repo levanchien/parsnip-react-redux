@@ -1,21 +1,32 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { createStore } from "redux";
+import { applyMiddleware, createStore } from "redux";
 import { Provider } from "react-redux";
-import tasks from "./reducers";
+import thunk from "redux-thunk";
+import { composeWithDevTools } from "redux-devtools-extension";
+import tasksReducer from "./reducers";
 
-const store = createStore(tasks);
+const rootReducer = (state = {}, action) => {
+  return {
+    /* Reducer for tasks state only */
+    tasks: tasksReducer(state.tasks, action),
+  };
+};
 
-ReactDOM.render(
+const store = createStore(
+  rootReducer,
+  composeWithDevTools(applyMiddleware(thunk))
+);
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
   <Provider store={store}>
     <React.StrictMode>
       <App />
     </React.StrictMode>
-  </Provider>,
-  document.getElementById("root")
+  </Provider>
 );
 
 // If you want to start measuring performance in your app, pass a function
