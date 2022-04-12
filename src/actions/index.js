@@ -1,6 +1,15 @@
 import * as api from "../api";
+import { CALL_API } from "../middleware/api";
 
-export function fetchTasksSucceeded(tasks) {
+export const FETCH_TASKS_STARTED = "FETCH_TASKS_STARTED";
+export const FETCH_TASKS_SUCCEEDED = "FETCH_TASKS_SUCCEEDED";
+export const FETCH_TASKS_FAILED = "FETCH_TASKS_FAILED";
+
+export const CREATE_TASK_STARTED = "CREATE_TASK_STARTED";
+export const CREATE_TASK_SUCCEEDED = "CREATE_TASK_SUCCEEDED";
+export const CREATE_TASK_FAILED = "CREATE_TASK_FAILED";
+
+/* export function fetchTasksSucceeded(tasks) {
   return {
     type: "FETCH_TASKS_SUCCEEDED",
     payload: {
@@ -27,16 +36,23 @@ export function fetchTasks() {
     api
       .fetchTasks()
       .then((resp) => {
-        if (new Date().getTime() % 2 === 0) {
-          return setTimeout(() => {
-            dispatch(fetchTasksSucceeded(resp.data));
-          }, 2000);
-        }
-        throw new Error("Oh noes! Unable to fetch tasks!");
+        return setTimeout(() => {
+          dispatch(fetchTasksSucceeded(resp.data));
+        }, 2000);
       })
       .catch((err) => {
         dispatch(fetchTasksFailed(err.message));
       });
+  };
+}
+ */
+
+export function fetchTasks() {
+  return {
+    [CALL_API]: {
+      types: [FETCH_TASKS_STARTED, FETCH_TASKS_SUCCEEDED, FETCH_TASKS_FAILED],
+      endpoint: "/tasks",
+    },
   };
 }
 
@@ -46,13 +62,30 @@ function createTaskSucceeded(task) {
     payload: {
       task,
     },
+    /* The meta property is designed to capture any data relevant to an action 
+    that doesn’t fit within either type or payload */
+    meta: {
+      analytics: {
+        event: "create_task",
+        data: {
+          id: task.id,
+        },
+      },
+    },
   };
 }
 export function createTask({ title, description, status = "Unstarted" }) {
-  return (dispatch) => {
-    api.createTask({ title, description, status }).then((resp) => {
-      dispatch(createTaskSucceeded(resp.data));
-    });
+  return {
+    [CALL_API]: {
+      types: [CREATE_TASK_STARTED, CREATE_TASK_SUCCEEDED, CREATE_TASK_FAILED],
+      endpoint: "/tasks",
+      method: "POST",
+      body: {
+        title,
+        description,
+        status,
+      },
+    },
   };
 }
 

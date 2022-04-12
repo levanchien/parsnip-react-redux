@@ -10,13 +10,15 @@ export default function tasks(state = initialState, action) {
       return {
         ...state,
         isLoading: true,
+        error: null,
       };
     }
     case "FETCH_TASKS_SUCCEEDED": {
       return {
         ...state,
-        tasks: action.payload.tasks,
+        tasks: action.payload,
         isLoading: false,
+        error: null,
       };
     }
     case "FETCH_TASKS_FAILED": {
@@ -26,10 +28,17 @@ export default function tasks(state = initialState, action) {
         error: action.payload.error,
       };
     }
+    case "CREATE_TASK_STARTED": {
+      return {
+        ...state,
+        isLoading: true,
+      };
+    }
     case "CREATE_TASK_SUCCEEDED": {
       return {
         ...state,
-        tasks: state.tasks.concat(action.payload.task),
+        tasks: state.tasks.concat([action.payload]),
+        isLoading: false,
       };
     }
     case "EDIT_TASK_SUCCEEDED": {
