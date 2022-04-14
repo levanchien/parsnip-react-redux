@@ -1,8 +1,13 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import { createTask, editTask, fetchTasks } from "./actions";
+import { createTask, editTask, fetchTasks, filterTasks } from "./actions";
 import FlashMessage from "./components/FlashMessage";
 import TasksPage from "./components/TasksPage";
+import {
+  getFilteredTasks,
+  getGroupedAndFilteredTasks,
+  getGroupedTask,
+} from "./reducers";
 
 /* 
   Get data from the Redux store via connect.
@@ -17,9 +22,13 @@ class App extends Component {
   onStatusChange = (id, status) => {
     this.props.dispatch(editTask(id, { status }));
   };
+  onSearch = (searchTerm) => {
+    this.props.dispatch(filterTasks(searchTerm));
+  };
   componentDidMount() {
     this.props.dispatch(fetchTasks());
   }
+
   render() {
     return (
       <div className="container">
@@ -31,6 +40,7 @@ class App extends Component {
             onCreateTask={this.onCreateTask}
             onStatusChange={this.onStatusChange}
             isLoading={this.props.isLoading}
+            onSearch={this.onSearch}
           />
         </div>
       </div>
@@ -47,8 +57,14 @@ function mapStateToProps(state) {
   The return value of mapStateToProps is passed into the App component as props,
    which is why render can reference this.props.tasks. 
   */
-  const { tasks, isLoading, error, timer } = state.tasks;
-  return { tasks, isLoading, error, timer };
+  const { isLoading, error, timer } = state.tasks;
+
+  return {
+    tasks: getGroupedAndFilteredTasks(state),
+    isLoading,
+    error,
+    timer,
+  };
 }
 
 export default connect(mapStateToProps)(App);
