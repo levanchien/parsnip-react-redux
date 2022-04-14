@@ -47,8 +47,8 @@ function mapStateToProps(state) {
   The return value of mapStateToProps is passed into the App component as props,
    which is why render can reference this.props.tasks. 
   */
-  const { tasks, isLoading, error } = state.tasks;
-  return { tasks, isLoading, error };
+  const { tasks, isLoading, error, timer } = state.tasks;
+  return { tasks, isLoading, error, timer };
 }
 
 export default connect(mapStateToProps)(App);

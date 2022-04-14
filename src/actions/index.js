@@ -22,7 +22,9 @@ function fetchTasksFailed(error) {
   };
 }
 export function fetchTasks() {
-  return (dispatch) => {
+  return fetchTasksStarted();
+  /* Redux-thunk provide function with args dispatch, getState */
+  /* return (dispatch) => {
     dispatch(fetchTasksStarted());
     api
       .fetchTasks()
@@ -37,7 +39,7 @@ export function fetchTasks() {
       .catch((err) => {
         dispatch(fetchTasksFailed(err.message));
       });
-  };
+  }; */
 }
 
 function createTaskSucceeded(task) {
@@ -66,16 +68,33 @@ function editTaskSucceeded(task) {
 }
 export function editTask(id, params = {}) {
   return (dispatch, getState) => {
-    /* getState() return current state { tasks: { tasks: [], isLoading: false } } */
+    /* function getState() return current state { tasks: { tasks: [], isLoading: false } } */
     const task = getTaskById(getState().tasks.tasks, id);
     const updatedTask = Object.assign({}, task, params);
 
     api.editTask(id, updatedTask).then((resp) => {
       dispatch(editTaskSucceeded(resp.data));
+      console.log(resp.data.status);
+      if (resp.data.status === "In Progress") {
+        return dispatch(progressTimerStart(resp.data.id));
+      }
+
+      if (task.status === "In Progress") {
+        return dispatch(progressTimerStop(resp.data.id));
+      }
     });
   };
 }
 
 function getTaskById(tasks, id) {
   return tasks.find((task) => task.id === id);
+}
+
+function progressTimerStart(taskId) {
+  /* The action that the saga will be listening for */
+  return { type: "TIMER_STARTED", payload: { taskId } };
+}
+
+function progressTimerStop(taskId) {
+  return { type: "TIMER_STOPPED", payload: { taskId } };
 }
