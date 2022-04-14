@@ -13,3 +13,5 @@
 - The two conceptual groups of actions: view actions and server actions
 - The three important moments during the lifecycle of a remote API call: start, successful completion, and failure
 - Rendering errors to improve overall user experience
+
+- Selectors are functions that accept a state from the Redux store and compute data that will eventually be passed as props to React.
